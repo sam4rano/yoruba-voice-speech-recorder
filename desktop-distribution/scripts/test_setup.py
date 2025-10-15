@@ -24,7 +24,7 @@ def test_python_environment():
     
     # Check required packages
     required_packages = [
-        'PySide6',
+        'PyQt6',
         'pyaudio', 
         'webrtcvad',
         'shortuuid',

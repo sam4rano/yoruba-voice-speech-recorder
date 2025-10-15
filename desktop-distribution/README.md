@@ -192,3 +192,4 @@ signtool sign /fd SHA256 /a "YorubaVoiceRecorder.exe"
 - The original development environment remains unchanged
 - Build outputs are stored in the `dist/` directory
 - All scripts are designed to be run from the project root directory
+# afri-volta-speech-recorder

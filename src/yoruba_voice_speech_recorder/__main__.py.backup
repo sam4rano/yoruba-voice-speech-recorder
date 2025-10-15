@@ -16,19 +16,10 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtWidgets import QMessageBox
 
-# Import audio module - works for both development and PyInstaller
-try:
-    # Try relative import first (for development)
-    from . import audio
-except ImportError:
-    try:
-        # Try absolute import (for PyInstaller)
-        import yoruba_voice_speech_recorder.audio as audio
-    except ImportError:
-        # Fallback for development mode
-        local_src_module_path = os.path.join(os.path.dirname(__file__), "../../")
-        sys.path.append(local_src_module_path)
-        import src.yoruba_voice_speech_recorder.audio as audio
+local_src_module_path = os.path.join(os.path.dirname(__file__), "../../")
+sys.path.append(local_src_module_path)
+
+import src.yoruba_voice_speech_recorder.audio as audio
 import shortuuid
 
 event = threading.Event()

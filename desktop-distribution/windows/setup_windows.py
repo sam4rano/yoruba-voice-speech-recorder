@@ -30,11 +30,11 @@ def build_windows_app():
         f'--add-data={os.path.join(project_root, "desktop-distribution", "assets", "icon.ico")};.',
         
         # Hidden imports
-        '--hidden-import=PySide6.QtCore',
-        '--hidden-import=PySide6.QtGui',
-        '--hidden-import=PySide6.QtQml',
-        '--hidden-import=PySide6.QtWidgets',
-        '--hidden-import=PySide6.QtMultimedia',
+        '--hidden-import=PyQt6.QtCore',
+        '--hidden-import=PyQt6.QtGui',
+        '--hidden-import=PyQt6.QtQml',
+        '--hidden-import=PyQt6.QtWidgets',
+        '--hidden-import=PyQt6.QtMultimedia',
         '--hidden-import=pyaudio',
         '--hidden-import=webrtcvad',
         '--hidden-import=shortuuid',

@@ -1,0 +1,20 @@
+{
+  "name": "yoruba-voice-recorder-website",
+  "version": "1.0.0",
+  "description": "Download page for Yoruba Voice Speech Recorder",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "dev": "python -m http.server 3000 --directory public"
+  },
+  "keywords": [
+    "yoruba",
+    "voice",
+    "speech",
+    "recording",
+    "language",
+    "preservation",
+    "africa"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
