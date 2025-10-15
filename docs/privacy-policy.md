@@ -19,3 +19,5 @@ Recorded audio is used solely for:
 
 ## Contact
 For questions about this privacy policy, please open an issue on [GitHub](https://github.com/sam4rano/yoruba-voice-speech-recorder/issues) or contact [your-email@domain.com]
+
+*Last updated: January 2025*
