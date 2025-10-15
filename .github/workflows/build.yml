@@ -1,0 +1,191 @@
+name: Build Cross-Platform Executables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: Build macOS executable
+      run: |
+        cd desktop-distribution
+        ./scripts/build_pyinstaller.sh
+    
+    - name: Create macOS DMG
+      run: |
+        cd desktop-distribution
+        hdiutil create -volname "Yoruba Voice Recorder" -srcfolder dist/macos/YorubaVoiceRecorder.app -ov -format UDZO dist/macos/YorubaVoiceRecorder.dmg
+    
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-build
+        path: desktop-distribution/dist/macos/
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: Build Windows executable
+      run: |
+        cd desktop-distribution
+        pyinstaller --name="YorubaVoiceRecorder" --windowed --onefile --distpath="dist/windows" --workpath="build/windows" --specpath="build/windows" --icon="assets/icon.ico" --paths="../src" --add-data="../src/yoruba_voice_speech_recorder/prompts;prompts" --add-data="../src/yoruba_voice_speech_recorder/__main__.qml;." --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtQml --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtMultimedia --hidden-import=pyaudio --hidden-import=webrtcvad --hidden-import=shortuuid --hidden-import=sounddevice --hidden-import=yoruba_voice_speech_recorder --hidden-import=yoruba_voice_speech_recorder.audio --clean "../src/yoruba_voice_speech_recorder/__main__.py"
+    
+    - name: Create Windows ZIP
+      run: |
+        cd desktop-distribution/dist/windows
+        powershell Compress-Archive -Path YorubaVoiceRecorder.exe -DestinationPath YorubaVoiceRecorder-Windows.zip
+    
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: desktop-distribution/dist/windows/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y portaudio19-dev libasound2-dev
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: Build Linux executable
+      run: |
+        cd desktop-distribution
+        pyinstaller --name="YorubaVoiceRecorder" --windowed --onefile --distpath="dist/linux" --workpath="build/linux" --specpath="build/linux" --icon="assets/icon.ico" --paths="../src" --add-data="../src/yoruba_voice_speech_recorder/prompts:prompts" --add-data="../src/yoruba_voice_speech_recorder/__main__.qml:." --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtQml --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtMultimedia --hidden-import=pyaudio --hidden-import=webrtcvad --hidden-import=shortuuid --hidden-import=sounddevice --hidden-import=yoruba_voice_speech_recorder --hidden-import=yoruba_voice_speech_recorder.audio --clean "../src/yoruba_voice_speech_recorder/__main__.py"
+    
+    - name: Make Linux executable
+      run: |
+        chmod +x desktop-distribution/dist/linux/YorubaVoiceRecorder
+    
+    - name: Create Linux AppImage
+      run: |
+        cd desktop-distribution/dist/linux
+        wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        
+        # Create AppDir structure
+        mkdir -p AppDir/usr/bin
+        cp YorubaVoiceRecorder AppDir/usr/bin/
+        
+        # Create AppRun
+        cat > AppDir/AppRun << 'EOF'
+        #!/bin/bash
+        cd "$(dirname "$0")"
+        exec ./usr/bin/YorubaVoiceRecorder "$@"
+        EOF
+        chmod +x AppDir/AppRun
+        
+        # Create desktop file
+        cat > AppDir/YorubaVoiceRecorder.desktop << 'EOF'
+        [Desktop Entry]
+        Name=Yoruba Voice Speech Recorder
+        Comment=Record and preserve Yoruba language voice samples
+        Exec=YorubaVoiceRecorder
+        Icon=YorubaVoiceRecorder
+        Terminal=false
+        Type=Application
+        Categories=AudioVideo;Audio;Recorder;
+        EOF
+        
+        # Create AppImage
+        ./appimagetool-x86_64.AppImage AppDir YorubaVoiceRecorder-Linux.AppImage
+    
+    - name: Create Linux ZIP fallback
+      run: |
+        cd desktop-distribution/dist/linux
+        zip -r YorubaVoiceRecorder-Linux.zip YorubaVoiceRecorder
+    
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-build
+        path: desktop-distribution/dist/linux/
+
+  create-release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Create release directory
+      run: |
+        mkdir -p release
+        cp -r macos-build/* release/ 2>/dev/null || true
+        cp -r windows-build/* release/ 2>/dev/null || true
+        cp -r linux-build/* release/ 2>/dev/null || true
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Yoruba Voice Speech Recorder v${{ github.run_number }}
+        body: |
+          ## Yoruba Voice Speech Recorder v${{ github.run_number }}
+          
+          Cross-platform desktop application for recording Yoruba language voice samples.
+          
+          ### Downloads
+          - **macOS**: Download the DMG file for easy installation
+          - **Windows**: Download the ZIP file and extract the executable
+          - **Linux**: Download the AppImage or ZIP file
+          
+          ### Installation
+          - **macOS**: Double-click the DMG file and drag to Applications
+          - **Windows**: Extract the ZIP and run YorubaVoiceRecorder.exe
+          - **Linux**: Make executable and run: `chmod +x YorubaVoiceRecorder && ./YorubaVoiceRecorder`
+          
+          ### Features
+          - High-quality audio recording
+          - Yoruba language focus
+          - Cross-platform compatibility
+          - Professional packaging
+        files: release/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

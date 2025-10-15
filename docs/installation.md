@@ -18,7 +18,17 @@
 
 ## Windows Installation
 
-### From Source Code
+### Method 1: Executable (Recommended)
+1. Go to [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
+2. Download `YorubaVoiceRecorder-Windows.zip`
+3. Extract the ZIP file
+4. Double-click `YorubaVoiceRecorder.exe` to run
+
+### Method 2: Direct Download
+1. Download `YorubaVoiceRecorder.exe` directly
+2. Run the executable (may require Windows Defender approval)
+
+### Method 3: From Source Code (Advanced)
 1. Download the source code from [GitHub](https://github.com/sam4rano/yoruba-voice-speech-recorder/archive/refs/heads/main.zip)
 2. Extract the ZIP file
 3. Install Python 3.8 or later
@@ -33,7 +43,31 @@
 
 ## Linux Installation
 
-### From Source Code
+### Method 1: AppImage (Recommended)
+1. Go to [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
+2. Download `YorubaVoiceRecorder-Linux.AppImage`
+3. Make it executable:
+   ```bash
+   chmod +x YorubaVoiceRecorder-Linux.AppImage
+   ```
+4. Run the application:
+   ```bash
+   ./YorubaVoiceRecorder-Linux.AppImage
+   ```
+
+### Method 2: ZIP Package
+1. Download `YorubaVoiceRecorder-Linux.zip`
+2. Extract the ZIP file
+3. Make executable:
+   ```bash
+   chmod +x YorubaVoiceRecorder
+   ```
+4. Run the application:
+   ```bash
+   ./YorubaVoiceRecorder
+   ```
+
+### Method 3: From Source Code (Advanced)
 1. Download the source code from [GitHub](https://github.com/sam4rano/yoruba-voice-speech-recorder/archive/refs/heads/main.zip)
 2. Extract the ZIP file
 3. Install Python 3.8 or later
