@@ -126,7 +126,7 @@ jobs:
   create-release:
     needs: [build-macos, build-windows, build-linux]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: false # Temporarily disabled due to permissions issues
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
