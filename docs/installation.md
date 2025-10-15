@@ -18,14 +18,14 @@
 
 ## Windows Installation
 
-### Method 1: Executable (Recommended)
+### Method 1: ZIP Package (Recommended)
 1. Go to [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
 2. Download `YorubaVoiceRecorder-Windows.zip`
 3. Extract the ZIP file
 4. Double-click `YorubaVoiceRecorder.exe` to run
 
-### Method 2: Direct Download
-1. Download `YorubaVoiceRecorder.exe` directly
+### Method 2: Direct Executable
+1. Download `YorubaVoiceRecorder.exe` directly from [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
 2. Run the executable (may require Windows Defender approval)
 
 ### Method 3: From Source Code (Advanced)
@@ -43,26 +43,26 @@
 
 ## Linux Installation
 
-### Method 1: AppImage (Recommended)
+### Method 1: ZIP Package (Recommended)
 1. Go to [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
-2. Download `YorubaVoiceRecorder-Linux.AppImage`
-3. Make it executable:
-   ```bash
-   chmod +x YorubaVoiceRecorder-Linux.AppImage
-   ```
-4. Run the application:
-   ```bash
-   ./YorubaVoiceRecorder-Linux.AppImage
-   ```
-
-### Method 2: ZIP Package
-1. Download `YorubaVoiceRecorder-Linux.zip`
-2. Extract the ZIP file
-3. Make executable:
+2. Download `YorubaVoiceRecorder-Linux.zip`
+3. Extract the ZIP file
+4. Make executable:
    ```bash
    chmod +x YorubaVoiceRecorder
    ```
-4. Run the application:
+5. Run the application:
+   ```bash
+   ./YorubaVoiceRecorder
+   ```
+
+### Method 2: Direct Executable
+1. Download `YorubaVoiceRecorder` directly from [GitHub Releases](https://github.com/sam4rano/yoruba-voice-speech-recorder/releases)
+2. Make executable:
+   ```bash
+   chmod +x YorubaVoiceRecorder
+   ```
+3. Run the application:
    ```bash
    ./YorubaVoiceRecorder
    ```
