@@ -5,18 +5,272 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import QtMultimedia
 
-Window {
+ApplicationWindow {
     id: root
     visible: true
     width: 1440; height: 1080
-    color: "#f5f5f6"
     title: qsTr("Yorùbá Voice Recorder")
-
+    
     property bool recording: false
     property string promptsName: ''
     property string scriptText: ''
     property string scriptFilename: ''
     property string saveDir: '.'
+    property string currentTheme: "light"
+    
+    // Theme colors
+    property color primaryColor: currentTheme === "dark" ? "#2b2b2b" : "#f5f5f6"
+    property color secondaryColor: currentTheme === "dark" ? "#3c3c3c" : "#ffffff"
+    property color textColor: currentTheme === "dark" ? "#ffffff" : "#333333"
+    property color accentColor: currentTheme === "dark" ? "#4a9eff" : "#007acc"
+    property color buttonColor: currentTheme === "dark" ? "#4a9eff" : "#007acc"
+    property color buttonHoverColor: currentTheme === "dark" ? "#5ba8ff" : "#0088dd"
+    
+    color: primaryColor
+    
+    // Settings dialog
+    Dialog {
+        id: settingsDialog
+        title: "Settings"
+        width: 500
+        height: 400
+        anchors.centerIn: parent
+        
+        background: Rectangle {
+            color: secondaryColor
+            border.color: accentColor
+            border.width: 2
+            radius: 8
+        }
+        
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 20
+            
+            Text {
+                text: "Settings"
+                font.pixelSize: 24
+                font.bold: true
+                color: textColor
+                Layout.alignment: Qt.AlignHCenter
+            }
+            
+            // Theme selection
+            RowLayout {
+                Text {
+                    text: "Theme:"
+                    color: textColor
+                    font.pixelSize: 16
+                }
+                
+                ComboBox {
+                    id: themeCombo
+                    model: ["light", "dark"]
+                    currentIndex: currentTheme === "dark" ? 1 : 0
+                    onCurrentTextChanged: {
+                        currentTheme = currentText
+                        recorder.setTheme(currentText)
+                    }
+                    
+                    background: Rectangle {
+                        color: secondaryColor
+                        border.color: accentColor
+                        border.width: 1
+                        radius: 4
+                    }
+                }
+            }
+            
+            // Save directory
+            RowLayout {
+                Text {
+                    text: "Save Directory:"
+                    color: textColor
+                    font.pixelSize: 16
+                }
+                
+                Text {
+                    text: recorder.getSaveDirectory()
+                    color: textColor
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                    elide: Text.ElideMiddle
+                }
+                
+                Button {
+                    text: "Browse"
+                    onClicked: recorder.selectSaveDirectory()
+                    
+                    background: Rectangle {
+                        color: buttonColor
+                        radius: 4
+                    }
+                    
+                    contentItem: Text {
+                        text: parent.text
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+            
+            // Speaker name
+            RowLayout {
+                Text {
+                    text: "Speaker Name:"
+                    color: textColor
+                    font.pixelSize: 16
+                }
+                
+                Text {
+                    text: recorder.getSpeakerName()
+                    color: textColor
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                }
+                
+                Button {
+                    text: "Set"
+                    onClicked: recorder.setSpeakerName()
+                    
+                    background: Rectangle {
+                        color: buttonColor
+                        radius: 4
+                    }
+                    
+                    contentItem: Text {
+                        text: parent.text
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+            
+            // Prompts count
+            RowLayout {
+                Text {
+                    text: "Prompts Count:"
+                    color: textColor
+                    font.pixelSize: 16
+                }
+                
+                Text {
+                    text: recorder.getPromptsCount()
+                    color: textColor
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                }
+                
+                Button {
+                    text: "Set"
+                    onClicked: recorder.setPromptsCount()
+                    
+                    background: Rectangle {
+                        color: buttonColor
+                        radius: 4
+                    }
+                    
+                    contentItem: Text {
+                        text: parent.text
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+            
+            // Close button
+            Button {
+                text: "Close"
+                Layout.alignment: Qt.AlignHCenter
+                onClicked: settingsDialog.close()
+                
+                background: Rectangle {
+                    color: buttonColor
+                    radius: 4
+                }
+                
+                contentItem: Text {
+                    text: parent.text
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+    }
+    
+    // Quit confirmation dialog
+    Dialog {
+        id: quitDialog
+        title: "Quit Application"
+        width: 300
+        height: 150
+        anchors.centerIn: parent
+        
+        background: Rectangle {
+            color: secondaryColor
+            border.color: accentColor
+            border.width: 2
+            radius: 8
+        }
+        
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 20
+            
+            Text {
+                text: "Are you sure you want to quit?"
+                color: textColor
+                font.pixelSize: 16
+                Layout.alignment: Qt.AlignHCenter
+            }
+            
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 10
+                
+                Button {
+                    text: "Yes"
+                    onClicked: {
+                        quitDialog.close()
+                        recorder.requestQuit()
+                    }
+                    
+                    background: Rectangle {
+                        color: "#ff4444"
+                        radius: 4
+                    }
+                    
+                    contentItem: Text {
+                        text: parent.text
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+                
+                Button {
+                    text: "No"
+                    onClicked: quitDialog.close()
+                    
+                    background: Rectangle {
+                        color: buttonColor
+                        radius: 4
+                    }
+                    
+                    contentItem: Text {
+                        text: parent.text
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                }
+            }
+        }
+    }
 
     Component.onCompleted: initTimer.start()
     Timer {
@@ -37,6 +291,10 @@ Window {
         scriptListView.incrementCurrentIndex();
         scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
     }
+    
+    function showQuitDialog() {
+        quitDialog.open()
+    }
 
     ListModel {
         id: scriptModel
@@ -45,199 +303,234 @@ Window {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
+        spacing: 20
 
-        Frame {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            focus: true
-
-            ListView {
-                id: scriptListView
-                model: scriptModel
-                anchors.fill: parent
-                focus: true
-                clip: true
-                ScrollBar.vertical: ScrollBar { active: true; policy: ScrollBar.AlwaysOn }
-                highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-                spacing: 3
-
-                onCurrentItemChanged: {
-                    scriptText = model.get(currentIndex).script;
-                    scriptFilename = model.get(currentIndex).filename;
-                    console.log('selected: "' + scriptText + '", ' + scriptFilename);
-                }
-
-                delegate: Item {
-                    width: 940  // fixed width elements, no longer a function of parent.width
-                    height: 60
-                    Column {
-                        Text {
-                            text: script                    // Item .script
-                            font.pointSize: 22
-                            color: filename == '' ? "black" : "green"
-                            // anchors.verticalCenter: parent.verticalCenter // TODO IO this is broken
-                        }
-                        Text {
-                            text: 'Filename: ' + filename   // Item .filename
-                            font.pointSize: 18
-                            color: filename == '' ? "red" : "black"
-                            // font.bold: filename == '' ? false : true
-                            // color: "#ffffff"
-                        }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: scriptListView.currentIndex = index
-                    }
-                }
-            }
-
-
-
-        }
-
-            // ComboBox {
-            //     editable: false
-            //     model: ListModel {
-            //         id: model
-            //         ListElement { text: "Script set 1" }
-            //         ListElement { text: "Script set 2" }
-            //         ListElement { text: "Script set 3" }
-            //     }
-            // }
-
+        // Header with title and controls
         RowLayout {
-
-            // Fills the width of this row, pushing elements to the right
-            Item {
+            Layout.fillWidth: true
+            spacing: 20
+            
+            Text {
+                text: "Yorùbá Voice Recorder"
+                font.pixelSize: 32
+                font.bold: true
+                color: textColor
                 Layout.fillWidth: true
             }
             
+            // Settings button
             Button {
-                Layout.preferredHeight: 45
-                font.pointSize: 22
-                text: "Load Prompts file"
-                highlighted: promptsName != '' ? true : false
-                onClicked: { fileDialog.visible = true }
-            }
-
-            TextArea {
-                width: 100
-                font.pointSize: 18
-                readOnly: true
-                text: promptsName
-                verticalAlignment: TextField.AlignVCenter
-
-            }
-
-            // Separator between Prompt file && Speakername
-            Item {
-                width: 15
-            }
-            Text {
-                text: 'Speaker Name:'
-                font.pointSize: 18
-                verticalAlignment: TextField.AlignVCenter
-            }
-            TextField {
-                Layout.preferredHeight: 30
-                font.pointSize: 18
-                placeholderText: "Olúwadáminí"
-                verticalAlignment: TextField.AlignVCenter
+                text: "⚙️ Settings"
+                onClicked: settingsDialog.open()
+                
                 background: Rectangle {
-                        border.color: control.enabled ? "#21be2b" : "transparent"
+                    color: buttonColor
+                    radius: 6
                 }
-                onAccepted: {
-                    console.log("Speaker Name is: " + text)
-                    recorder.acceptSpeakerNameText(text)
+                
+                contentItem: Text {
+                    text: parent.text
+                    color: "white"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            
+            // Quit button
+            Button {
+                text: "❌ Quit"
+                onClicked: showQuitDialog()
+                
+                background: Rectangle {
+                    color: "#ff4444"
+                    radius: 6
+                }
+                
+                contentItem: Text {
+                    text: parent.text
+                    color: "white"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
             }
         }
 
-        TextArea {
+        // Status bar
+        Rectangle {
             Layout.fillWidth: true
-            font.pointSize: 26
-            wrapMode: TextEdit.Wrap
-            readOnly: true
-            text: scriptText
-            background: Rectangle {
-                border.width: 5
-                border.color: recording ? "#2b2" : "#b22"
+            height: 40
+            color: secondaryColor
+            border.color: accentColor
+            border.width: 1
+            radius: 4
+            
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 20
+                
+                Text {
+                    text: "Speaker: " + recorder.getSpeakerName()
+                    color: textColor
+                    font.pixelSize: 14
+                }
+                
+                Text {
+                    text: "Save to: " + recorder.getSaveDirectory()
+                    color: textColor
+                    font.pixelSize: 14
+                    Layout.fillWidth: true
+                    elide: Text.ElideMiddle
+                }
+                
+                Text {
+                    text: "Theme: " + currentTheme
+                    color: textColor
+                    font.pixelSize: 14
+                }
             }
         }
 
-        Button {
+        // Main content area
+        Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
-            font.pointSize: 22
-            highlighted: recording
-            text: recording ? "Stop" : "Start"
-            onClicked: {
-                recording = !recording;
-                if (recording) {
-                    recorder.startRecording();
-                } else {
-                    recorder.finishRecording();
-                    gotoNextScript();   // local QML function
-                }
-            }
-        }
+            Layout.fillHeight: true
+            color: secondaryColor
+            border.color: accentColor
+            border.width: 2
+            radius: 8
+            
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 20
 
-        RowLayout {
-            Button {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                font.pointSize: 22
-                text: "Play"
-                enabled: scriptFilename
-                highlighted: playFile.playbackState == playFile.PlayingState
-                onClicked: {
-                    playFile.source = scriptFilename
-                    playFile.play()
+                // Current script display
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 200
+                    color: primaryColor
+                    border.color: accentColor
+                    border.width: 1
+                    radius: 6
+                    
+                    ScrollView {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        
+                        Text {
+                            id: scriptText
+                            text: scriptListView.currentItem ? scriptListView.currentItem.script : ""
+                            color: textColor
+                            font.pixelSize: 24
+                            wrapMode: Text.WordWrap
+                            width: parent.width
+                        }
+                    }
                 }
-                MediaPlayer {
-                    id: playFile
-                    source: ''
-                    audioOutput: AudioOutput {}
+
+                // Recording controls
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 20
+                    
+                    Button {
+                        id: recordButton
+                        text: recording ? "⏹️ Stop Recording" : "🎤 Start Recording"
+                        onClicked: recording = !recording
+                        
+                        background: Rectangle {
+                            color: recording ? "#ff4444" : buttonColor
+                            radius: 8
+                        }
+                        
+                        contentItem: Text {
+                            text: parent.text
+                            color: "white"
+                            font.pixelSize: 18
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                    
+                    Button {
+                        text: "➡️ Next Script"
+                        onClicked: gotoNextScript()
+                        enabled: !recording
+                        
+                        background: Rectangle {
+                            color: enabled ? buttonColor : "#cccccc"
+                            radius: 8
+                        }
+                        
+                        contentItem: Text {
+                            text: parent.text
+                            color: "white"
+                            font.pixelSize: 16
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
                 }
-            }
 
-            Button {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                font.pointSize: 22
-                text: "Delete"
-                enabled: scriptFilename
-                onClicked: recorder.deleteFile(scriptFilename) // @Slot def deleteFile(self, filename)
-            }
-
-            Button {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                font.pointSize: 22
-                text: recording ? "Cancel" : "Next"
-                onClicked: {
-                    if (recording) {
-                        recording = !recording;
-                    } else {
-                        gotoNextScript()    // local QML function
+                // Script list
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    color: primaryColor
+                    border.color: accentColor
+                    border.width: 1
+                    radius: 6
+                    
+                    ListView {
+                        id: scriptListView
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        model: scriptModel
+                        spacing: 5
+                        
+                        delegate: Rectangle {
+                            width: scriptListView.width
+                            height: 60
+                            color: index === scriptListView.currentIndex ? accentColor : secondaryColor
+                            border.color: accentColor
+                            border.width: 1
+                            radius: 4
+                            
+                            Text {
+                                anchors.fill: parent
+                                anchors.margins: 10
+                                text: script
+                                color: index === scriptListView.currentIndex ? "white" : textColor
+                                font.pixelSize: 14
+                                wrapMode: Text.WordWrap
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: scriptListView.currentIndex = index
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a file"
-        selectedNameFilter.index: 0
-        nameFilters: ["Prompt files (*.txt)", "Text files (*.txt)"]
-     
-        onAccepted: {
-            recorder.reinit_with_url(fileDialog.currentFile)
+    
+    // Connect signals
+    Connections {
+        target: recorder
+        function onSettingsChanged() {
+            // Refresh UI when settings change
         }
-        onRejected: {
-            console.log("Canceled")
+        
+        function onThemeChanged(theme) {
+            currentTheme = theme
         }
-     }
+    }
 }

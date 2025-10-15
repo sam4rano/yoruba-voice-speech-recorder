@@ -11,8 +11,8 @@ import re
 import sys
 import threading
 
-from PyQt6.QtCore import QObject, pyqtSlot as Slot, QUrl
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QObject, pyqtSlot as Slot, QUrl, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QFileDialog, QInputDialog
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtWidgets import QMessageBox
 
@@ -37,6 +37,11 @@ current_frame = 0
 
 class Recorder(QObject):
     """docstring for Recorder"""
+    
+    # Signals for QML
+    themeChanged = pyqtSignal(str)
+    settingsChanged = pyqtSignal()
+    quitRequested = pyqtSignal()
 
     def __init__(self, save_dir, prompts_filename, ordered=True, prompts_count=250, prompt_len_soft_max=None):
         super(Recorder, self).__init__()
@@ -45,6 +50,12 @@ class Recorder(QObject):
         self.speaker_name = None
         if not os.path.isdir(save_dir): raise Exception("save_dir '%s' is not a directory" % save_dir)
         self.save_dir = save_dir
+        
+        # Settings properties
+        self._theme = "light"
+        self._custom_save_dir = save_dir
+        self._custom_prompts_count = prompts_count
+        self._custom_speaker_name = "UNNAMED_SPEAKER"
         if not os.path.isfile(prompts_filename):
             # raise Exception("prompts_filename '%s' is not a file" % prompts_filename)
             self.msgWarning = QMessageBox()
@@ -220,6 +231,98 @@ class Recorder(QObject):
             if endpos is None: break
             startpos = endpos
         return scripts
+    
+    # Settings methods
+    @Slot()
+    def openSettings(self):
+        """Open settings dialog"""
+        self.settingsChanged.emit()
+    
+    @Slot(str)
+    def setTheme(self, theme):
+        """Set application theme"""
+        if theme in ["light", "dark"]:
+            self._theme = theme
+            self.themeChanged.emit(theme)
+    
+    @Slot(result=str)
+    def getTheme(self):
+        """Get current theme"""
+        return self._theme
+    
+    @Slot()
+    def selectSaveDirectory(self):
+        """Open directory selection dialog"""
+        directory = QFileDialog.getExistingDirectory(
+            None, 
+            "Select Save Directory", 
+            self._custom_save_dir,
+            QFileDialog.Option.ShowDirsOnly
+        )
+        if directory:
+            self._custom_save_dir = directory
+            self.save_dir = directory
+            self.window.setProperty('saveDir', directory)
+            self.settingsChanged.emit()
+    
+    @Slot()
+    def setSpeakerName(self):
+        """Open speaker name input dialog"""
+        text, ok = QInputDialog.getText(
+            None, 
+            'Speaker Name', 
+            'Enter speaker name:',
+            text=self._custom_speaker_name
+        )
+        if ok and text:
+            self._custom_speaker_name = text
+            self.speaker_id = text
+            self.speaker_name = text
+            self.settingsChanged.emit()
+    
+    @Slot()
+    def setPromptsCount(self):
+        """Open prompts count input dialog"""
+        count, ok = QInputDialog.getInt(
+            None, 
+            'Prompts Count', 
+            'Enter number of prompts to display:',
+            self._custom_prompts_count, 
+            1, 
+            1000, 
+            1
+        )
+        if ok:
+            self._custom_prompts_count = count
+            self.settingsChanged.emit()
+    
+    @Slot()
+    def requestQuit(self):
+        """Request quit with confirmation"""
+        reply = QMessageBox.question(
+            None, 
+            'Quit Application', 
+            'Are you sure you want to quit?',
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.quitRequested.emit()
+    
+    @Slot(result=str)
+    def getSaveDirectory(self):
+        """Get current save directory"""
+        return self._custom_save_dir
+    
+    @Slot(result=str)
+    def getSpeakerName(self):
+        """Get current speaker name"""
+        return self._custom_speaker_name
+    
+    @Slot(result=int)
+    def getPromptsCount(self):
+        """Get current prompts count"""
+        return self._custom_prompts_count
 
 
 def main():
@@ -306,6 +409,9 @@ def main():
     # Set QML properties from Python arguments
     recorder.window.setProperty('saveDir', args.save_dir)
     recorder.window.setProperty('promptsName', os.path.basename(args.prompts_filename))
+    
+    # Connect quit signal
+    recorder.quitRequested.connect(app.quit)
 
     res = app.exec()
     sys.exit(res)
