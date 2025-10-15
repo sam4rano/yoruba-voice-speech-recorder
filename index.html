@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoruba Voice Speech Recorder - Download</title>
+    <meta name="description" content="Record and preserve Yoruba language voice samples for research and education. Cross-platform desktop application for linguists and researchers.">
+    <meta name="keywords" content="yoruba, voice, speech, recording, language, preservation, africa, linguistics, research">
+    <meta name="author" content="Yoruba Voice Speech Recorder">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sam4rano.github.io/yoruba-voice-speech-recorder/">
+    <meta property="og:title" content="Yoruba Voice Speech Recorder">
+    <meta property="og:description" content="Record and preserve Yoruba language voice samples for research and education.">
+    <meta property="og:image" content="assets/icons/African-Inspired App Icon with Microphone Symbol.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://sam4rano.github.io/yoruba-voice-speech-recorder/">
+    <meta property="twitter:title" content="Yoruba Voice Speech Recorder">
+    <meta property="twitter:description" content="Record and preserve Yoruba language voice samples for research and education.">
+    <meta property="twitter:image" content="assets/icons/African-Inspired App Icon with Microphone Symbol.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        
+        .download-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .download-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .download-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .download-card .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .download-btn:hover {
+            background: #5a6fd8;
+            transform: scale(1.05);
+        }
+        
+        .download-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .download-btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .download-btn.github {
+            background: #24292e;
+        }
+        
+        .download-btn.github:hover {
+            background: #1a1e22;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .feature .icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .feature h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .system-requirements {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+        
+        .system-requirements h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .requirement {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .github-releases {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .github-releases h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .github-releases p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .download-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 Yoruba Voice Speech Recorder</h1>
+            <p>Record and preserve Yoruba language voice samples for research and education</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="github-releases">
+                <h3>📦 Download from GitHub Releases</h3>
+                <p>Due to file size limitations, the macOS application files are hosted on GitHub Releases for faster and more reliable downloads.</p>
+                <a href="https://github.com/sam4rano/yoruba-voice-speech-recorder/releases" class="download-btn github" target="_blank">
+                    🚀 View All Downloads on GitHub
+                </a>
+            </div>
+            
+            <div class="download-section">
+                <div class="download-card">
+                    <div class="icon">🍎</div>
+                    <h3>macOS</h3>
+                    <p>Compatible with macOS 10.15+</p>
+                    <a href="https://github.com/sam4rano/yoruba-voice-speech-recorder/releases/latest/download/YorubaVoiceRecorder.dmg" class="download-btn">
+                        Download DMG
+                    </a>
+                    <a href="https://github.com/sam4rano/yoruba-voice-speech-recorder/releases/latest/download/YorubaVoiceRecorder.app.zip" class="download-btn secondary">
+                        Download App Bundle
+                    </a>
+                </div>
+                
+                <div class="download-card">
+                    <div class="icon">🪟</div>
+                    <h3>Windows</h3>
+                    <p>Build from source code</p>
+                    <a href="https://github.com/sam4rano/yoruba-voice-speech-recorder/archive/refs/heads/main.zip" class="download-btn">
+                        Download Source
+                    </a>
+                    <a href="docs/installation.md" class="download-btn secondary">
+                        Installation Guide
+                    </a>
+                </div>
+                
+                <div class="download-card">
+                    <div class="icon">🐧</div>
+                    <h3>Linux</h3>
+                    <p>Source code available</p>
+                    <a href="https://github.com/sam4rano/yoruba-voice-speech-recorder/archive/refs/heads/main.zip" class="download-btn">
+                        Download Source
+                    </a>
+                    <a href="docs/installation.md" class="download-btn secondary">
+                        Installation Guide
+                    </a>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="icon">🎯</div>
+                    <h4>High-Quality Recording</h4>
+                    <p>Professional audio processing for clear voice samples</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="icon">📝</div>
+                    <h4>Random Prompts</h4>
+                    <p>Curated Yoruba text samples for diverse recordings</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="icon">📊</div>
+                    <h4>Metadata Tracking</h4>
+                    <p>Comprehensive data collection for research purposes</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="icon">🖥️</div>
+                    <h4>Cross-Platform</h4>
+                    <p>Works on macOS, Windows, and Linux</p>
+                </div>
+            </div>
+            
+            <div class="system-requirements">
+                <h3>System Requirements</h3>
+                <div class="requirements-grid">
+                    <div class="requirement">
+                        <h4>macOS</h4>
+                        <p>macOS 10.15 or later<br>
+                        100 MB free space<br>
+                        Microphone access</p>
+                    </div>
+                    <div class="requirement">
+                        <h4>Windows</h4>
+                        <p>Windows 10 or later<br>
+                        Python 3.8+<br>
+                        Microphone access</p>
+                    </div>
+                    <div class="requirement">
+                        <h4>Linux</h4>
+                        <p>Ubuntu 18.04+ or similar<br>
+                        Python 3.8+<br>
+                        Microphone access</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Yoruba Voice Speech Recorder. Helping preserve the Yoruba language.</p>
+        </div>
+    </div>
+</body>
+</html>
