@@ -8,7 +8,7 @@ import QtMultimedia
 ApplicationWindow {
     id: root
     visible: true
-    width: 1440; height: 1080
+    width: 1600; height: 1000
     title: qsTr("Yorùbá Voice Recorder")
     
     property bool recording: false
@@ -18,265 +18,326 @@ ApplicationWindow {
     property string saveDir: '.'
     property string currentTheme: "light"
     
-    // Theme colors
-    property color primaryColor: currentTheme === "dark" ? "#2b2b2b" : "#f5f5f6"
-    property color secondaryColor: currentTheme === "dark" ? "#3c3c3c" : "#ffffff"
-    property color textColor: currentTheme === "dark" ? "#ffffff" : "#333333"
-    property color accentColor: currentTheme === "dark" ? "#4a9eff" : "#007acc"
-    property color buttonColor: currentTheme === "dark" ? "#4a9eff" : "#007acc"
-    property color buttonHoverColor: currentTheme === "dark" ? "#5ba8ff" : "#0088dd"
+    // Modern theme colors
+    property color primaryColor: currentTheme === "dark" ? "#1a1a1a" : "#f8f9fa"
+    property color secondaryColor: currentTheme === "dark" ? "#2d2d2d" : "#ffffff"
+    property color cardColor: currentTheme === "dark" ? "#3a3a3a" : "#ffffff"
+    property color textColor: currentTheme === "dark" ? "#ffffff" : "#2c3e50"
+    property color textSecondaryColor: currentTheme === "dark" ? "#b0b0b0" : "#6c757d"
+    property color accentColor: currentTheme === "dark" ? "#4a9eff" : "#007bff"
+    property color successColor: currentTheme === "dark" ? "#28a745" : "#28a745"
+    property color dangerColor: currentTheme === "dark" ? "#dc3545" : "#dc3545"
+    property color warningColor: currentTheme === "dark" ? "#ffc107" : "#ffc107"
+    property color borderColor: currentTheme === "dark" ? "#4a4a4a" : "#e9ecef"
+    property color shadowColor: currentTheme === "dark" ? "#000000" : "#000000"
+    
+    // Active item colors with proper contrast
+    property color activeItemBackground: currentTheme === "dark" ? "#1e3a8a" : "#dbeafe"
+    property color activeItemText: currentTheme === "dark" ? "#ffffff" : "#1e40af"
+    property color activeItemBorder: currentTheme === "dark" ? "#3b82f6" : "#2563eb"
     
     color: primaryColor
     
-    // Settings dialog
+    // Modern shadow component (simplified)
+    component ModernShadow: Rectangle {
+        color: "transparent"
+        border.color: shadowColor
+        border.width: 1
+        opacity: 0.1
+    }
+    
+    // Modern card component
+    component ModernCard: Rectangle {
+        color: cardColor
+        border.color: borderColor
+        border.width: 1
+        radius: 12
+    }
+    
+    // Modern button component
+    component ModernButton: Button {
+        property color buttonColor: accentColor
+        property color hoverColor: Qt.lighter(buttonColor, 1.1)
+        property color pressColor: Qt.darker(buttonColor, 1.2)
+        property bool isDanger: false
+        property bool isSuccess: false
+        
+        background: Rectangle {
+            color: {
+                if (isDanger) return dangerColor
+                if (isSuccess) return successColor
+                return parent.pressed ? pressColor : (parent.hovered ? hoverColor : buttonColor)
+            }
+            radius: 8
+            border.color: Qt.lighter(parent.background.color, 1.2)
+            border.width: 1
+        }
+        
+        contentItem: Text {
+            text: parent.text
+            color: "white"
+            font.pixelSize: 14
+            font.weight: Font.Medium
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+        
+    }
+    
+    // Settings dialog with modern design
     Dialog {
         id: settingsDialog
         title: "Settings"
-        width: 500
-        height: 400
+        width: 600
+        height: 500
         anchors.centerIn: parent
+        modal: true
         
-        background: Rectangle {
-            color: secondaryColor
-            border.color: accentColor
-            border.width: 2
-            radius: 8
+        background: ModernCard {
+            anchors.fill: parent
         }
         
-        ColumnLayout {
-            anchors.fill: parent
-            spacing: 20
+        header: Rectangle {
+            height: 60
+            color: "transparent"
             
             Text {
                 text: "Settings"
                 font.pixelSize: 24
-                font.bold: true
+                font.weight: Font.Bold
                 color: textColor
-                Layout.alignment: Qt.AlignHCenter
+                anchors.centerIn: parent
             }
+        }
+        
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 30
+            spacing: 25
             
-            // Theme selection
-            RowLayout {
-                Text {
-                    text: "Theme:"
-                    color: textColor
-                    font.pixelSize: 16
-                }
+            // Theme selection with modern design
+            ModernCard {
+                Layout.fillWidth: true
+                height: 80
+                color: "transparent"
+                border.width: 0
                 
-                ComboBox {
-                    id: themeCombo
-                    model: ["light", "dark"]
-                    currentIndex: currentTheme === "dark" ? 1 : 0
-                    onCurrentTextChanged: {
-                        currentTheme = currentText
-                        recorder.setTheme(currentText)
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 20
+                    
+                    Text {
+                        text: "Theme"
+                        color: textColor
+                        font.pixelSize: 16
+                        font.weight: Font.Medium
+                        Layout.preferredWidth: 120
                     }
                     
-                    background: Rectangle {
-                        color: secondaryColor
-                        border.color: accentColor
-                        border.width: 1
-                        radius: 4
-                    }
-                }
-            }
-            
-            // Save directory
-            RowLayout {
-                Text {
-                    text: "Save Directory:"
-                    color: textColor
-                    font.pixelSize: 16
-                }
-                
-                Text {
-                    text: recorder.getSaveDirectory()
-                    color: textColor
-                    font.pixelSize: 14
-                    Layout.fillWidth: true
-                    elide: Text.ElideMiddle
-                }
-                
-                Button {
-                    text: "Browse"
-                    onClicked: recorder.selectSaveDirectory()
-                    
-                    background: Rectangle {
-                        color: buttonColor
-                        radius: 4
-                    }
-                    
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    ComboBox {
+                        id: themeCombo
+                        model: ["light", "dark"]
+                        currentIndex: currentTheme === "dark" ? 1 : 0
+                        onCurrentTextChanged: {
+                            currentTheme = currentText
+                            recorder.setTheme(currentText)
+                        }
                     }
                 }
             }
             
-            // Speaker name
-            RowLayout {
-                Text {
-                    text: "Speaker Name:"
-                    color: textColor
-                    font.pixelSize: 16
-                }
+            // Save directory with modern design
+            ModernCard {
+                Layout.fillWidth: true
+                height: 80
+                color: "transparent"
+                border.width: 0
                 
-                Text {
-                    text: recorder.getSpeakerName()
-                    color: textColor
-                    font.pixelSize: 14
-                    Layout.fillWidth: true
-                }
-                
-                Button {
-                    text: "Set"
-                    onClicked: recorder.setSpeakerName()
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 20
                     
-                    background: Rectangle {
-                        color: buttonColor
-                        radius: 4
+                    Text {
+                        text: "Save Directory"
+                        color: textColor
+                        font.pixelSize: 16
+                        font.weight: Font.Medium
+                        Layout.preferredWidth: 120
                     }
                     
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    Text {
+                        id: saveDirText
+                        text: recorder.getSaveDirectory()
+                        color: textSecondaryColor
+                        font.pixelSize: 14
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                    }
+                    
+                    ModernButton {
+                        text: "Browse"
+                        onClicked: recorder.selectSaveDirectory()
+                        Layout.preferredWidth: 100
                     }
                 }
             }
             
-            // Prompts count
-            RowLayout {
-                Text {
-                    text: "Prompts Count:"
-                    color: textColor
-                    font.pixelSize: 16
-                }
+            // Speaker name with modern design
+            ModernCard {
+                Layout.fillWidth: true
+                height: 80
+                color: "transparent"
+                border.width: 0
                 
-                Text {
-                    text: recorder.getPromptsCount()
-                    color: textColor
-                    font.pixelSize: 14
-                    Layout.fillWidth: true
-                }
-                
-                Button {
-                    text: "Set"
-                    onClicked: recorder.setPromptsCount()
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 20
                     
-                    background: Rectangle {
-                        color: buttonColor
-                        radius: 4
+                    Text {
+                        text: "Speaker Name"
+                        color: textColor
+                        font.pixelSize: 16
+                        font.weight: Font.Medium
+                        Layout.preferredWidth: 120
                     }
                     
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                    Text {
+                        id: speakerNameText
+                        text: recorder.getSpeakerName()
+                        color: textSecondaryColor
+                        font.pixelSize: 14
+                        Layout.fillWidth: true
+                    }
+                    
+                    ModernButton {
+                        text: "Set"
+                        onClicked: recorder.setSpeakerName()
+                        Layout.preferredWidth: 100
+                    }
+                }
+            }
+            
+            // Prompts count with modern design
+            ModernCard {
+                Layout.fillWidth: true
+                height: 80
+                color: "transparent"
+                border.width: 0
+                
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 20
+                    
+                    Text {
+                        text: "Prompts Count"
+                        color: textColor
+                        font.pixelSize: 16
+                        font.weight: Font.Medium
+                        Layout.preferredWidth: 120
+                    }
+                    
+                    Text {
+                        text: recorder.getPromptsCount()
+                        color: textSecondaryColor
+                        font.pixelSize: 14
+                        Layout.fillWidth: true
+                    }
+                    
+                    ModernButton {
+                        text: "Set"
+                        onClicked: recorder.setPromptsCount()
+                        Layout.preferredWidth: 100
                     }
                 }
             }
             
             // Close button
-            Button {
-                text: "Close"
+            RowLayout {
                 Layout.alignment: Qt.AlignHCenter
-                onClicked: settingsDialog.close()
+                spacing: 15
                 
-                background: Rectangle {
-                    color: buttonColor
-                    radius: 4
-                }
-                
-                contentItem: Text {
-                    text: parent.text
-                    color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                ModernButton {
+                    text: "Close"
+                    onClicked: settingsDialog.close()
+                    Layout.preferredWidth: 120
                 }
             }
         }
     }
     
-    // Quit confirmation dialog
+    // Quit confirmation dialog with modern design
     Dialog {
         id: quitDialog
         title: "Quit Application"
-        width: 300
-        height: 150
+        width: 400
+        height: 200
         anchors.centerIn: parent
+        modal: true
         
-        background: Rectangle {
-            color: secondaryColor
-            border.color: accentColor
-            border.width: 2
-            radius: 8
+        background: ModernCard {
+            anchors.fill: parent
         }
         
         ColumnLayout {
             anchors.fill: parent
-            spacing: 20
+            anchors.margins: 30
+            spacing: 25
             
             Text {
                 text: "Are you sure you want to quit?"
                 color: textColor
-                font.pixelSize: 16
+                font.pixelSize: 18
+                font.weight: Font.Medium
                 Layout.alignment: Qt.AlignHCenter
             }
             
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 10
+                spacing: 15
                 
-                Button {
-                    text: "Yes"
+                ModernButton {
+                    text: "Yes, Quit"
+                    isDanger: true
                     onClicked: {
                         quitDialog.close()
                         recorder.requestQuit()
                     }
-                    
-                    background: Rectangle {
-                        color: "#ff4444"
-                        radius: 4
-                    }
-                    
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                    Layout.preferredWidth: 120
                 }
                 
-                Button {
-                    text: "No"
+                ModernButton {
+                    text: "Cancel"
                     onClicked: quitDialog.close()
-                    
-                    background: Rectangle {
-                        color: buttonColor
-                        radius: 4
-                    }
-                    
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                    Layout.preferredWidth: 120
                 }
             }
         }
     }
 
-    Component.onCompleted: initTimer.start()
+    Component.onCompleted: {
+        initTimer.start()
+        // Load initial text after a short delay
+        loadInitialText.start()
+    }
+    
     Timer {
         id: initTimer
         interval: 0
         onTriggered: recorder.init(scriptModel)
+    }
+    
+    Timer {
+        id: loadInitialText
+        interval: 100
+        onTriggered: {
+            if (scriptModel.count > 0 && scriptListView.currentIndex >= 0) {
+                scriptText.text = scriptModel.get(scriptListView.currentIndex).script || ""
+            }
+        }
     }
 
     onRecordingChanged: recorder.toggleRecording(recording)
@@ -288,8 +349,26 @@ ApplicationWindow {
     }
 
     function gotoNextScript() {
-        scriptListView.incrementCurrentIndex();
-        scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
+        if (scriptListView.currentIndex < scriptModel.count - 1) {
+            scriptListView.incrementCurrentIndex();
+            scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
+        }
+    }
+    
+    function gotoPreviousScript() {
+        if (scriptListView.currentIndex > 0) {
+            scriptListView.decrementCurrentIndex();
+            scriptListView.positionViewAtIndex(scriptListView.currentIndex, ListView.Center);
+        }
+    }
+    
+    function deleteCurrentScript() {
+        if (scriptModel.count > 0) {
+            scriptModel.remove(scriptListView.currentIndex);
+            if (scriptListView.currentIndex >= scriptModel.count) {
+                scriptListView.currentIndex = scriptModel.count - 1;
+            }
+        }
     }
     
     function showQuitDialog() {
@@ -302,235 +381,263 @@ ApplicationWindow {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: 20
         spacing: 20
 
-        // Header with title and controls
-        RowLayout {
+        // Modern header with title and controls
+        ModernCard {
             Layout.fillWidth: true
-            spacing: 20
-            
-            Text {
-                text: "Yorùbá Voice Recorder"
-                font.pixelSize: 32
-                font.bold: true
-                color: textColor
-                Layout.fillWidth: true
-            }
-            
-            // Settings button
-            Button {
-                text: "⚙️ Settings"
-                onClicked: settingsDialog.open()
-                
-                background: Rectangle {
-                    color: buttonColor
-                    radius: 6
-                }
-                
-                contentItem: Text {
-                    text: parent.text
-                    color: "white"
-                    font.pixelSize: 14
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-            
-            // Quit button
-            Button {
-                text: "❌ Quit"
-                onClicked: showQuitDialog()
-                
-                background: Rectangle {
-                    color: "#ff4444"
-                    radius: 6
-                }
-                
-                contentItem: Text {
-                    text: parent.text
-                    color: "white"
-                    font.pixelSize: 14
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-        }
-
-        // Status bar
-        Rectangle {
-            Layout.fillWidth: true
-            height: 40
-            color: secondaryColor
-            border.color: accentColor
-            border.width: 1
-            radius: 4
+            height: 80
+            color: "transparent"
+            border.width: 0
             
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: 10
+                anchors.margins: 25
                 spacing: 20
                 
                 Text {
-                    text: "Speaker: " + recorder.getSpeakerName()
+                    text: "Yorùbá Voice Recorder"
+                    font.pixelSize: 28
+                    font.weight: Font.Bold
                     color: textColor
-                    font.pixelSize: 14
-                }
-                
-                Text {
-                    text: "Save to: " + recorder.getSaveDirectory()
-                    color: textColor
-                    font.pixelSize: 14
                     Layout.fillWidth: true
-                    elide: Text.ElideMiddle
                 }
                 
-                Text {
-                    text: "Theme: " + currentTheme
-                    color: textColor
-                    font.pixelSize: 14
+                // Settings button
+                ModernButton {
+                    text: "⚙️ Settings"
+                    onClicked: settingsDialog.open()
+                    Layout.preferredWidth: 120
+                }
+                
+                // Quit button
+                ModernButton {
+                    text: "❌ Quit"
+                    isDanger: true
+                    onClicked: showQuitDialog()
+                    Layout.preferredWidth: 100
                 }
             }
         }
 
-        // Main content area
-        Rectangle {
+        // Modern status bar
+        ModernCard {
+            Layout.fillWidth: true
+            height: 60
+            
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 15
+                spacing: 20
+                
+                RowLayout {
+                    spacing: 8
+                    Text {
+                        text: "👤"
+                        font.pixelSize: 14
+                    }
+                    Text {
+                        id: statusSpeakerText
+                        text: "Speaker: " + recorder.getSpeakerName()
+                        color: textColor
+                        font.pixelSize: 14
+                        font.weight: Font.Medium
+                    }
+                }
+                
+                Rectangle {
+                    width: 1
+                    height: 20
+                    color: borderColor
+                }
+                
+                RowLayout {
+                    spacing: 8
+                    Text {
+                        text: "📁"
+                        font.pixelSize: 14
+                    }
+                    Text {
+                        id: statusSaveDirText
+                        text: "Save to: " + recorder.getSaveDirectory()
+                        color: textSecondaryColor
+                        font.pixelSize: 12
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                    }
+                }
+                
+                Rectangle {
+                    width: 1
+                    height: 20
+                    color: borderColor
+                }
+                
+                RowLayout {
+                    spacing: 8
+                    Text {
+                        text: "🎨"
+                        font.pixelSize: 12
+                    }
+                    Text {
+                        text: "Theme: " + currentTheme
+                        color: textSecondaryColor
+                        font.pixelSize: 14
+                    }
+                }
+            }
+        }
+
+        // Main content area with modern design
+        ModernCard {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: secondaryColor
-            border.color: accentColor
-            border.width: 2
-            radius: 8
             
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 20
-                spacing: 20
+                anchors.margins: 25
+                spacing: 25
 
-                // Current script display
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 200
-                    color: primaryColor
-                    border.color: accentColor
-                    border.width: 1
-                    radius: 6
-                    
-                    ScrollView {
-                        anchors.fill: parent
-                        anchors.margins: 10
-                        
-                        Text {
-                            id: scriptText
-                            text: scriptListView.currentItem ? scriptListView.currentItem.script : ""
-                            color: textColor
-                            font.pixelSize: 24
-                            wrapMode: Text.WordWrap
-                            width: parent.width
-                        }
-                    }
-                }
-
-                // Recording controls
-                RowLayout {
-                    Layout.alignment: Qt.AlignHCenter
-                    spacing: 20
-                    
-                    Button {
-                        id: recordButton
-                        text: recording ? "⏹️ Stop Recording" : "🎤 Start Recording"
-                        onClicked: recording = !recording
-                        
-                        background: Rectangle {
-                            color: recording ? "#ff4444" : buttonColor
-                            radius: 8
-                        }
-                        
-                        contentItem: Text {
-                            text: parent.text
-                            color: "white"
-                            font.pixelSize: 18
-                            font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
-                    
-                    Button {
-                        text: "➡️ Next Script"
-                        onClicked: gotoNextScript()
-                        enabled: !recording
-                        
-                        background: Rectangle {
-                            color: enabled ? buttonColor : "#cccccc"
-                            radius: 8
-                        }
-                        
-                        contentItem: Text {
-                            text: parent.text
-                            color: "white"
-                            font.pixelSize: 16
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
-                }
-
-                // Script list
-                Rectangle {
+                // Script list - MAXIMIZED (shows all prompts)
+                ModernCard {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    color: primaryColor
-                    border.color: accentColor
-                    border.width: 1
-                    radius: 6
+                    Layout.minimumHeight: 500
                     
                     ListView {
                         id: scriptListView
                         anchors.fill: parent
-                        anchors.margins: 10
+                        anchors.margins: 15
                         model: scriptModel
-                        spacing: 5
+                        spacing: 4
+                        clip: true
                         
-                        delegate: Rectangle {
+                        onCurrentIndexChanged: {
+                            // Scroll to current item
+                            if (currentIndex >= 0) {
+                                positionViewAtIndex(currentIndex, ListView.Center);
+                            }
+                        }
+                        
+                        delegate: ModernCard {
                             width: scriptListView.width
                             height: 60
-                            color: index === scriptListView.currentIndex ? accentColor : secondaryColor
-                            border.color: accentColor
-                            border.width: 1
-                            radius: 4
+                            // PROPER ACTIVE ITEM HIGHLIGHTING WITH CONTRAST
+                            color: index === scriptListView.currentIndex ? activeItemBackground : secondaryColor
+                            border.color: index === scriptListView.currentIndex ? activeItemBorder : borderColor
+                            border.width: index === scriptListView.currentIndex ? 3 : 1
+                            radius: 6
+                            
+                            // Add glow effect for active item
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                border.color: index === scriptListView.currentIndex ? Qt.lighter(activeItemBorder, 1.3) : "transparent"
+                                border.width: 2
+                                radius: 8
+                                visible: index === scriptListView.currentIndex
+                                opacity: 0.8
+                            }
                             
                             Text {
                                 anchors.fill: parent
                                 anchors.margins: 10
                                 text: script
-                                color: index === scriptListView.currentIndex ? "white" : textColor
+                                color: index === scriptListView.currentIndex ? activeItemText : textColor
                                 font.pixelSize: 14
+                                font.weight: index === scriptListView.currentIndex ? Font.Bold : Font.Normal
                                 wrapMode: Text.WordWrap
-                                elide: Text.ElideRight
                                 verticalAlignment: Text.AlignVCenter
+                                lineHeight: 1.2
                             }
                             
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: scriptListView.currentIndex = index
+                                hoverEnabled: true
+                                onEntered: if (index !== scriptListView.currentIndex) parent.color = Qt.lighter(parent.color, 1.05)
+                                onExited: if (index !== scriptListView.currentIndex) parent.color = secondaryColor
                             }
                         }
                     }
                 }
+
+                // Control buttons - BELOW TEXT
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 20
+                    Layout.preferredHeight: 80
+                    
+                    ModernButton {
+                        id: recordButton
+                        text: recording ? "⏹️ Stop Recording" : "🎤 Start Recording"
+                        onClicked: recording = !recording
+                        isSuccess: recording
+                        Layout.preferredWidth: 180
+                        Layout.preferredHeight: 40
+                        
+                        contentItem: Text {
+                            text: parent.text
+                            color: "white"
+                            font.pixelSize: 18
+                            font.weight: Font.Bold
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                    
+                    ModernButton {
+                        text: "⬅️ Previous"
+                        onClicked: gotoPreviousScript()
+                        enabled: !recording && scriptListView.currentIndex > 0
+                        Layout.preferredWidth: 130
+                        Layout.preferredHeight: 40
+                    }
+                    
+                    ModernButton {
+                        text: "➡️ Next"
+                        onClicked: gotoNextScript()
+                        enabled: !recording
+                        Layout.preferredWidth: 130
+                        Layout.preferredHeight: 40
+                    }
+                    
+                    ModernButton {
+                        text: "🗑️ Delete"
+                        isDanger: true
+                        onClicked: deleteCurrentScript()
+                        enabled: !recording && scriptModel.count > 0
+                        Layout.preferredWidth: 130
+                        Layout.preferredHeight: 40
+                    }
+                }
+
             }
         }
     }
+    
     
     // Connect signals
     Connections {
         target: recorder
         function onSettingsChanged() {
             // Refresh UI when settings change
+            console.log("Settings changed - refreshing UI")
+            // Force QML to re-evaluate the property bindings
+            themeCombo.currentIndex = currentTheme === "dark" ? 1 : 0
+            // Refresh text elements
+            saveDirText.text = recorder.getSaveDirectory()
+            speakerNameText.text = recorder.getSpeakerName()
+            // Refresh status bar
+            statusSpeakerText.text = "Speaker: " + recorder.getSpeakerName()
+            statusSaveDirText.text = "Save to: " + recorder.getSaveDirectory()
         }
         
         function onThemeChanged(theme) {
+            console.log("Theme changed to:", theme)
             currentTheme = theme
         }
     }
+    
 }

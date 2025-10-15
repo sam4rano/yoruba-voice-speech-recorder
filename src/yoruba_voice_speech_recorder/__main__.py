@@ -144,6 +144,9 @@ class Recorder(QObject):
                 [filename, self.speaker_id, self.window.property('promptsName'), '',
                  self.sanitize_script(scriptText)]) + '\n')
         logging.debug("wrote %s to %s", len(data), filename)
+        
+        # Auto-advance to next script after recording
+        self.autoAdvanceToNext()
 
     @Slot(str)
     def deleteFile(self, filename):
@@ -323,6 +326,25 @@ class Recorder(QObject):
     def getPromptsCount(self):
         """Get current prompts count"""
         return self._custom_prompts_count
+    
+    @Slot()
+    def autoAdvanceToNext(self):
+        """Auto-advance to next script after recording"""
+        if hasattr(self, 'window') and self.window:
+            # Call the QML function to advance to next script
+            self.window.gotoNextScript()
+    
+    @Slot()
+    def goToPreviousScript(self):
+        """Go to previous script"""
+        if hasattr(self, 'window') and self.window:
+            self.window.gotoPreviousScript()
+    
+    @Slot()
+    def deleteCurrentScript(self):
+        """Delete current script from list"""
+        if hasattr(self, 'window') and self.window:
+            self.window.deleteCurrentScript()
 
 
 def main():
@@ -404,6 +426,12 @@ def main():
     recorder = Recorder(args.save_dir, args.prompts_filename, args.ordered, **kwargs)
     engine.rootContext().setContextProperty('recorder', recorder)
     engine.load(qml_file)
+    
+    # Check if QML loaded successfully
+    if not engine.rootObjects():
+        print("Error: Failed to load QML file")
+        sys.exit(1)
+    
     recorder.window = engine.rootObjects()[0]
     
     # Set QML properties from Python arguments
