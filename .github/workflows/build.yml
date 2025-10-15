@@ -104,38 +104,13 @@ jobs:
       run: |
         chmod +x desktop-distribution/dist/linux/YorubaVoiceRecorder
     
-    - name: Create Linux AppImage
+    - name: Create Linux AppImage (simplified)
       run: |
         cd desktop-distribution/dist/linux
-        wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-        chmod +x appimagetool-x86_64.AppImage
-        
-        # Create AppDir structure
-        mkdir -p AppDir/usr/bin
-        cp YorubaVoiceRecorder AppDir/usr/bin/
-        
-        # Create AppRun
-        cat > AppDir/AppRun << 'EOF'
-        #!/bin/bash
-        cd "$(dirname "$0")"
-        exec ./usr/bin/YorubaVoiceRecorder "$@"
-        EOF
-        chmod +x AppDir/AppRun
-        
-        # Create desktop file
-        cat > AppDir/YorubaVoiceRecorder.desktop << 'EOF'
-        [Desktop Entry]
-        Name=Yoruba Voice Speech Recorder
-        Comment=Record and preserve Yoruba language voice samples
-        Exec=YorubaVoiceRecorder
-        Icon=YorubaVoiceRecorder
-        Terminal=false
-        Type=Application
-        Categories=AudioVideo;Audio;Recorder;
-        EOF
-        
-        # Create AppImage
-        ./appimagetool-x86_64.AppImage AppDir YorubaVoiceRecorder-Linux.AppImage
+        # Skip AppImage creation for now due to FUSE requirements
+        # Just create a simple executable package
+        echo "Skipping AppImage creation due to FUSE requirements in CI"
+        echo "Creating simple executable package instead"
     
     - name: Create Linux ZIP fallback
       run: |
@@ -176,12 +151,12 @@ jobs:
           ### Downloads
           - **macOS**: Download the DMG file for easy installation
           - **Windows**: Download the ZIP file and extract the executable
-          - **Linux**: Download the AppImage or ZIP file
+          - **Linux**: Download the ZIP file with the executable
           
           ### Installation
           - **macOS**: Double-click the DMG file and drag to Applications
           - **Windows**: Extract the ZIP and run YorubaVoiceRecorder.exe
-          - **Linux**: Make executable and run: `chmod +x YorubaVoiceRecorder && ./YorubaVoiceRecorder`
+          - **Linux**: Extract the ZIP, make executable and run: `chmod +x YorubaVoiceRecorder && ./YorubaVoiceRecorder`
           
           ### Features
           - High-quality audio recording
