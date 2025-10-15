@@ -241,7 +241,57 @@ def main():
     parser.add_argument('-o', '--ordered', action='store_true', default=True,
                         help='present prompts in order, as opposed to random (default: %(default)s)')
     args = parser.parse_args()
-    assert args.prompts_filename
+    
+    # If no prompts filename provided, use the default prompts file
+    if not args.prompts_filename:
+        # Try to find the default prompts file in the bundled app
+        if hasattr(sys, '_MEIPASS'):
+            # Running as PyInstaller bundle - data files are embedded
+            # Try to find the prompts file in the embedded data
+            try:
+                import pkgutil
+                # Look for the prompts file in the package data
+                prompts_data = pkgutil.get_data('yoruba_voice_speech_recorder', 'prompts/yovo_3501.txt')
+                if prompts_data:
+                    # Create a temporary file with the prompts data
+                    import tempfile
+                    temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
+                    temp_file.write(prompts_data.decode('utf-8'))
+                    temp_file.close()
+                    args.prompts_filename = temp_file.name
+                else:
+                    raise Exception("Prompts data not found")
+            except Exception:
+                # Fallback: try to find the prompts directory in the bundle
+                prompts_dir = os.path.join(sys._MEIPASS, 'yoruba_voice_speech_recorder', 'prompts')
+                if os.path.exists(prompts_dir):
+                    default_prompts = os.path.join(prompts_dir, 'yovo_3501.txt')
+                    if os.path.exists(default_prompts):
+                        args.prompts_filename = default_prompts
+                    else:
+                        # Try to find any .txt file in the prompts directory
+                        for file in os.listdir(prompts_dir):
+                            if file.endswith('.txt'):
+                                args.prompts_filename = os.path.join(prompts_dir, file)
+                                break
+        else:
+            # Running as development script
+            prompts_dir = os.path.join(current_path, 'prompts')
+            default_prompts = os.path.join(prompts_dir, 'yovo_3501.txt')
+            if os.path.exists(default_prompts):
+                args.prompts_filename = default_prompts
+            else:
+                # Fallback: try to find any .txt file in the prompts directory
+                for file in os.listdir(prompts_dir):
+                    if file.endswith('.txt'):
+                        args.prompts_filename = os.path.join(prompts_dir, file)
+                        break
+    
+    assert args.prompts_filename, "No prompts file found. Please provide --prompts_filename or ensure default prompts are available."
+    
+    # Create save directory if it doesn't exist
+    if not os.path.exists(args.save_dir):
+        os.makedirs(args.save_dir)
 
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
@@ -252,6 +302,10 @@ def main():
     engine.rootContext().setContextProperty('recorder', recorder)
     engine.load(qml_file)
     recorder.window = engine.rootObjects()[0]
+    
+    # Set QML properties from Python arguments
+    recorder.window.setProperty('saveDir', args.save_dir)
+    recorder.window.setProperty('promptsName', os.path.basename(args.prompts_filename))
 
     res = app.exec()
     sys.exit(res)
