@@ -1,0 +1,28 @@
+# Dockerfile for building Windows executable
+FROM python:3.9-windowsservercore
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install pyinstaller
+
+# Copy source code
+COPY src/ src/
+COPY desktop-distribution/assets/ desktop-distribution/assets/
+
+# Create output directories
+RUN mkdir dist\windows build\windows
+
+# Build Windows executable
+RUN pyinstaller --name=YorubaVoiceRecorder --windowed --onefile --distpath=dist\windows --workpath=build\windows --specpath=build\windows --icon=desktop-distribution\assets\icon.ico --paths=src --add-data=src\yoruba_voice_speech_recorder\prompts;prompts --add-data=src\yoruba_voice_speech_recorder\__main__.qml;. --hidden-import=PyQt6.QtCore --hidden-import=PyQt6.QtGui --hidden-import=PyQt6.QtQml --hidden-import=PyQt6.QtWidgets --hidden-import=PyQt6.QtMultimedia --hidden-import=pyaudio --hidden-import=webrtcvad --hidden-import=shortuuid --hidden-import=sounddevice --hidden-import=yoruba_voice_speech_recorder --hidden-import=yoruba_voice_speech_recorder.audio --clean src\yoruba_voice_speech_recorder\__main__.py
+
+# Create ZIP package
+RUN powershell Compress-Archive -Path "dist\windows\YorubaVoiceRecorder.exe" -DestinationPath "dist\windows\YorubaVoiceRecorder-Windows.zip"
+
+# Copy output to host
+VOLUME ["/app/dist"]
