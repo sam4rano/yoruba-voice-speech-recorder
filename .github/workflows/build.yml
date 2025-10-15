@@ -35,7 +35,7 @@ jobs:
         hdiutil create -volname "Yoruba Voice Recorder" -srcfolder dist/macos/YorubaVoiceRecorder.app -ov -format UDZO dist/macos/YorubaVoiceRecorder.dmg
     
     - name: Upload macOS artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: macos-build
         path: desktop-distribution/dist/macos/
@@ -67,7 +67,7 @@ jobs:
         powershell Compress-Archive -Path YorubaVoiceRecorder.exe -DestinationPath YorubaVoiceRecorder-Windows.zip
     
     - name: Upload Windows artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-build
         path: desktop-distribution/dist/windows/
@@ -141,7 +141,7 @@ jobs:
         zip -r YorubaVoiceRecorder-Linux.zip YorubaVoiceRecorder
     
     - name: Upload Linux artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: linux-build
         path: desktop-distribution/dist/linux/
@@ -152,7 +152,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
     
     - name: Create release directory
       run: |
