@@ -48,7 +48,11 @@ class Recorder(QObject):
         self.scriptModel = None
         self.speaker_id = None
         self.speaker_name = None
-        if not os.path.isdir(save_dir): raise Exception("save_dir '%s' is not a directory" % save_dir)
+        # Create save directory if it doesn't exist
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        elif not os.path.isdir(save_dir):
+            raise Exception("save_dir '%s' is not a directory" % save_dir)
         self.save_dir = save_dir
         
         # Settings properties
@@ -115,6 +119,10 @@ class Recorder(QObject):
     @Slot(bool)
     def toggleRecording(self, recording):
         logging.debug('toggleRecording: recording is now %s', recording)
+        if recording:
+            self.startRecording()
+        else:
+            self.finishRecording()
 
     @Slot()
     def startRecording(self):
@@ -126,23 +134,34 @@ class Recorder(QObject):
     def finishRecording(self):
         self.audio.stream.stop_stream()
         data = self.read_audio(drop_last=3)
-        if self.window.property('scriptFilename'):
-            self.deleteFile(self.window.property('scriptFilename'))
-        filename = os.path.normpath(os.path.join(self.window.property('saveDir'),
+        
+        # Clear the current script filename (don't delete the file)
+        self.window.setProperty('scriptFilename', '')
+        
+        save_dir = self.window.property('saveDir')
+        # Ensure save directory exists
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        
+        filename = os.path.normpath(os.path.join(save_dir,
                                                  "recorder_" + datetime.datetime.now().strftime(
                                                      "%Y-%m-%d_%H-%M-%S_%f") + ".wav"))
         self.window.setProperty('scriptFilename', filename)
-        self.audio.write_wav(filename, data)
+        
+        if data and len(data) > 0:
+            self.audio.write_wav(filename, data)
+        
         scriptText = self.window.property('scriptText')
 
         # Double check speaker name and
         if self.speaker_id is None or self.speaker_id.isspace() or self.speaker_id == "":
             self.speaker_id = "UNNAMED_SPEAKER"
-        print(self.speaker_id)
-        with open(os.path.join(self.window.property('saveDir'), "recorder.tsv"), "a") as xsvfile:
-            xsvfile.write('\t'.join(
-                [filename, self.speaker_id, self.window.property('promptsName'), '',
-                 self.sanitize_script(scriptText)]) + '\n')
+        
+        tsv_path = os.path.join(save_dir, "recorder.tsv")
+        prompts_name = self.window.property('promptsName')
+        
+        with open(tsv_path, "a") as xsvfile:
+            xsvfile.write('\t'.join([filename, self.speaker_id, prompts_name, '', self.sanitize_script(scriptText)]) + '\n')
         logging.debug("wrote %s to %s", len(data), filename)
         
         # Auto-advance to next script after recording
@@ -380,7 +399,7 @@ def main():
                 if prompts_data:
                     # Create a temporary file with the prompts data
                     import tempfile
-                    temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
+                    temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, prefix='yovo_3501_')
                     temp_file.write(prompts_data.decode('utf-8'))
                     temp_file.close()
                     args.prompts_filename = temp_file.name
@@ -436,7 +455,7 @@ def main():
     
     # Set QML properties from Python arguments
     recorder.window.setProperty('saveDir', args.save_dir)
-    recorder.window.setProperty('promptsName', os.path.basename(args.prompts_filename))
+    # promptsName is already set in populate_listview()
     
     # Connect quit signal
     recorder.quitRequested.connect(app.quit)

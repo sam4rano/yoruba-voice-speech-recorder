@@ -335,7 +335,7 @@ ApplicationWindow {
         interval: 100
         onTriggered: {
             if (scriptModel.count > 0 && scriptListView.currentIndex >= 0) {
-                scriptText.text = scriptModel.get(scriptListView.currentIndex).script || ""
+                scriptText = scriptModel.get(scriptListView.currentIndex).script || ""
             }
         }
     }
@@ -517,6 +517,8 @@ ApplicationWindow {
                             // Scroll to current item
                             if (currentIndex >= 0) {
                                 positionViewAtIndex(currentIndex, ListView.Center);
+                                // Update script text when selection changes
+                                scriptText = scriptModel.get(currentIndex).script || "";
                             }
                         }
                         
