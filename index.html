@@ -189,6 +189,21 @@
             opacity: 0.8;
         }
         
+        .update-notice {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .update-notice h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
         .github-releases {
             background: #f8f9fa;
             padding: 30px;
@@ -230,6 +245,11 @@
         </div>
         
         <div class="main-content">
+            <div class="update-notice">
+                <h3>🎉 Version 1.2.0 Now Available!</h3>
+                <p><strong>Major Update:</strong> Fixed multiple recording issue! Now properly saves all recordings instead of overwriting. Enhanced script text capture and improved TSV file generation.</p>
+            </div>
+            
             <div class="github-releases">
                 <h3>📦 Download from GitHub Releases</h3>
                 <p>Due to file size limitations, the macOS application files are hosted on GitHub Releases for faster and more reliable downloads.</p>
@@ -279,26 +299,38 @@
             <div class="features">
                 <div class="feature">
                     <div class="icon">🎯</div>
-                    <h4>High-Quality Recording</h4>
-                    <p>Professional audio processing for clear voice samples</p>
+                    <h4>Multiple Recordings</h4>
+                    <p>Record multiple sessions - each creates separate audio files with complete metadata</p>
                 </div>
                 
                 <div class="feature">
                     <div class="icon">📝</div>
-                    <h4>Random Prompts</h4>
-                    <p>Curated Yoruba text samples for diverse recordings</p>
+                    <h4>Script Text Capture</h4>
+                    <p>Automatically captures and saves the Yoruba text being read for each recording</p>
                 </div>
                 
                 <div class="feature">
                     <div class="icon">📊</div>
-                    <h4>Metadata Tracking</h4>
-                    <p>Comprehensive data collection for research purposes</p>
+                    <h4>Complete TSV Export</h4>
+                    <p>Generates comprehensive metadata file with all recording information</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="icon">🔄</div>
+                    <h4>Auto-Advance</h4>
+                    <p>Seamlessly moves to next script after each recording for efficient workflow</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="icon">⚙️</div>
+                    <h4>Customizable Settings</h4>
+                    <p>Adjust theme, save directory, speaker name, and other preferences</p>
                 </div>
                 
                 <div class="feature">
                     <div class="icon">🖥️</div>
                     <h4>Cross-Platform</h4>
-                    <p>Works on macOS, Windows, and Linux</p>
+                    <p>Works on macOS, Windows, and Linux with native performance</p>
                 </div>
             </div>
             
